@@ -203,6 +203,24 @@ else ifeq ($(platform), wii)
 
    EXTRA_INCLUDES := -I$(DEVKITPRO)/libogc/include
    STATIC_LINKING = 1
+
+else ifeq ($(platform), switch)
+    include $(DEVKITPRO)/libnx/switch_rules
+    CC = $(DEVKITPRO)/devkitA64/bin/aarch64-none-elf-gcc
+    CXX = $(DEVKITPRO)/devkitA64/bin/aarch64-none-elf-g++
+    AR = $(DEVKITPRO)/devkitA64/bin/aarch64-none-elf-ar
+    EXT=a
+	
+    TARGET := libretro_$(platform).$(EXT)
+    DEFINES := -DSWITCH=1 -U__linux__ -U__linux -DRARCH_INTERNAL -DHAVE_THREADS=1
+    CFLAGS    :=     $(DEFINES) -g \
+                -O2 \
+                -fPIE -I$(LIBNX)/include/ -ffunction-sections -fdata-sections -ftls-model=local-exec -Wl,--allow-multiple-definition -specs=$(LIBNX)/switch.specs
+    CFLAGS += $(INCDIRS)
+    CFLAGS    +=    $(INCLUDE)  -D__SWITCH__
+    CXXFLAGS := $(ASFLAGS) $(CFLAGS) -fno-rtti -std=gnu++11
+    CFLAGS += -std=gnu11
+    STATIC_LINKING=1
 else ifneq (,$(findstring armv,$(platform)))
    TARGET := $(TARGET_NAME)_libretro.so
    fpic := -fPIC
